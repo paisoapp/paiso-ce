@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Paiso">
+  <title>Paiso apple-touch icon (full-bleed; iOS applies its own mask)</title>
+  <defs>
+    <linearGradient id="tileA" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c6039"/>
+      <stop offset="1" stop-color="#0d3d21"/>
+    </linearGradient>
+    <linearGradient id="barA" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#3fae52"/>
+      <stop offset="1" stop-color="#77d67d"/>
+    </linearGradient>
+    <linearGradient id="leafA" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#5ec46a"/>
+      <stop offset="1" stop-color="#9be79b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#tileA)"/>
+  <rect x="120" y="312" width="62" height="72"  rx="16" fill="url(#barA)"/>
+  <rect x="204" y="262" width="62" height="122" rx="16" fill="url(#barA)"/>
+  <rect x="288" y="212" width="62" height="172" rx="16" fill="url(#barA)"/>
+  <path d="M118 348 Q 236 300 330 210" fill="none" stroke="#ffffff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(300 96) scale(1.5)">
+    <path d="M50 6 C 28 20, 17 46, 24 84 C 62 76, 86 45, 79 12 C 66 17, 58 13, 50 6 Z" fill="url(#leafA)"/>
+    <path d="M34 72 Q 50 40 70 20" fill="none" stroke="#1c6039" stroke-width="5" stroke-linecap="round" opacity="0.55"/>
+  </g>
+</svg>

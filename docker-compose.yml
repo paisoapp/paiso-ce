@@ -1,0 +1,27 @@
+# Paiso, self-hosted. One container, one volume, reachable from this machine
+# only, at http://127.0.0.1:8080. Put an HTTPS reverse proxy in front to reach
+# it from elsewhere.
+#
+#   docker compose up -d
+#
+# No secrets to set: the first start writes random ones to /data/secrets in
+# the volume (backend/app/core/instance_secrets.py). Back up the volume as a
+# whole; without those files, two-factor secrets cannot be decrypted.
+
+# The project name fixes the volume's name (paiso-ce_paiso-data) whatever
+# folder this file sits in.
+name: paiso-ce
+
+services:
+  paiso-ce:
+    image: ghcr.io/paisoapp/paiso:latest
+    build: .
+    container_name: paiso-ce
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - paiso-data:/data
+
+volumes:
+  paiso-data:

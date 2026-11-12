@@ -1,0 +1,21 @@
+# Accepted container findings (security review, 2026-10-29).
+#
+# Each is a High in a Debian base package with no fixed version published.
+# Paiso never runs these programs or loads these libraries for its own work;
+# they are part of the python:3.12-slim base. The Dockerfile upgrades every
+# package at build time, so a fix is picked up by the next image. Remove a
+# line once Debian ships its fix.
+#
+# util-linux (mount, login, libblkid, libmount, libuuid, ...)
+CVE-2026-76642
+CVE-2026-78408
+CVE-2026-78409
+CVE-2026-78410
+# ncurses
+CVE-2025-69720
+# systemd (libsystemd0, libudev1)
+CVE-2026-16742
+# perl-base
+CVE-2026-9538
+# acl (libacl1)
+CVE-2026-54369

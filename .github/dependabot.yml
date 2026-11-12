@@ -1,0 +1,58 @@
+# Dependency updates for every ecosystem the image is built from.
+#
+# Each ecosystem opens at most one grouped pull request per run, so updates
+# arrive as a few reviewable batches instead of one pull request per package.
+# Security updates for any version still arrive on their own.
+#
+# Python: Dependabot edits backend/requirements.txt but cannot regenerate
+# the hash-locked backend/requirements.lock, so CI fails on its pull request
+# until a maintainer runs `make lock` and pushes the new lock to the same
+# branch (backend/README.md).
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /backend
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 1
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      python:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 2
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      npm:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      base-images:
+        patterns: ["*"]
+
+  # Actions get major versions too: an action left on an old major stops
+  # working when its download or API moves (cosign-installer v3 did).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    groups:
+      actions:
+        patterns: ["*"]

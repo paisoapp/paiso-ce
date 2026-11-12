@@ -1,0 +1,1030 @@
+@tailwind base;
+@tailwind components;
+
+@layer components {
+  /* The Paiso mark (components/brand/PaisoLogo.tsx). A drop-shadow follows
+     the artwork's own rounded tile, and currentColor is the surface's text
+     colour, so the edge is dark on light surfaces and light on dark ones. */
+  .paiso-mark {
+    filter: drop-shadow(0 0 0.75px color-mix(in srgb, currentColor 45%, transparent))
+      drop-shadow(0 1px 2px rgb(0 0 0 / 0.12));
+  }
+}
+@tailwind utilities;
+
+/* ============================================================================
+   THEMING MODEL
+   ----------------------------------------------------------------------------
+   Two independent axes are applied to <html>:
+     • Theme identity  → data-theme="<id>"  (classic, swiss, editorial, …)
+     • Mode (3-valued) → .dark / .gray class (light = neither)
+
+   Each theme defines a full set of CSS variables for all three modes. Mode
+   blocks are written COMPLETE (every color var) rather than as partial
+   overrides, so a theme's dark/gray values never leak across themes regardless
+   of source order. Fonts/radius are mode-independent and live in the light
+   block (inherited by .dark / .gray).
+
+   `classic` is the default and lives in :root / .dark / .gray so the app still
+   themes correctly even before JS sets data-theme. Registry: src/lib/themes.ts
+   ========================================================================== */
+
+@layer base {
+  /* ── PAISO (default) ───────────────────────────────────────────────────────
+     The Paiso theme. Theme id remains "classic" for persisted-pref
+     back-compat (see src/lib/themes.ts).
+       Light: white surfaces and green-tinted neutrals (hue ~150), with a
+              pine-green primary (#285348) and a deep leaf sidebar (#152e23).
+       Dark:  institutional navy with gold as the primary and the hover
+              colour, and a pale sidebar.
+       Gray:  a neutral dark with a soft green primary.
+     --success stays a brighter green than --primary so "gain" colouring is
+     distinct from brand chrome. Work Sans for text, Syne for the wordmark. */
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 155 30% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 155 30% 12%;
+    --primary: 165 35% 24%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 150 24% 95%;
+    --secondary-foreground: 155 30% 15%;
+    --muted: 150 24% 95%;
+    --muted-foreground: 155 12% 40%;
+    --accent: 145 38% 91%;
+    --accent-foreground: 155 32% 18%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 70% 38%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --border: 150 20% 88%;
+    --input: 150 20% 88%;
+    --ring: 165 35% 24%;
+    --radius: 1.125rem;
+    --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-serif: "Source Serif 4 Variable", "Source Serif 4", ui-serif, Georgia, serif;
+    --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 220 30% 92%;
+    --card: 222 42% 15%;
+    --card-foreground: 220 30% 92%;
+    --primary: 43 86% 55%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 222 33% 22%;
+    --secondary-foreground: 220 30% 92%;
+    --muted: 222 33% 20%;
+    --muted-foreground: 220 18% 65%;
+    --accent: 43 86% 55%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 50% 48%;
+    --success-foreground: 0 0% 10%;
+    --warning: 43 86% 55%;
+    --warning-foreground: 222 47% 11%;
+    --border: 222 30% 26%;
+    --input: 222 30% 26%;
+    --ring: 43 86% 55%;
+  }
+
+  .gray {
+    --background: 0 0% 12%;
+    --foreground: 0 0% 90%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 90%;
+    --primary: 150 30% 50%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 39 40% 55%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 65% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 150 40% 50%;
+    --success-foreground: 0 0% 10%;
+    --warning: 39 70% 52%;
+    --warning-foreground: 0 0% 10%;
+    --border: 0 0% 28%;
+    --input: 0 0% 28%;
+    --ring: 150 30% 50%;
+  }
+
+  /* The Paiso sidebar has its own tone. The sidebar paints itself with the
+     ordinary tokens (bg-card, text-muted-foreground, hover:bg-accent, ...),
+     so re-pointing those tokens inside [data-sidebar] recolours it without
+     touching the component. Scoped to this theme: the others keep a sidebar
+     that matches their cards.
+     Light: deep leaf green (#152e23); a hovered item goes near-white. */
+  [data-theme="classic"]:not(.dark):not(.gray) [data-sidebar] {
+    --card: 155 38% 13%;
+    --foreground: 0 0% 100%;
+    --muted-foreground: 155 25% 88%;
+    --accent: 220 24% 97%;
+    --accent-foreground: 155 30% 12%;
+    --border: 155 38% 21%;
+    --primary: 0 0% 100%;
+    /* Text on a primary fill inside the sidebar (a tip's button). */
+    --primary-foreground: 155 30% 12%;
+    color: hsl(var(--foreground));
+  }
+  /* Dark: a pale blue-gray (#D6DBE5) with navy ink; a hovered item takes the
+     gold, as hover does everywhere else in dark. */
+  [data-theme="classic"].dark [data-sidebar] {
+    --card: 220 22% 87%;
+    --foreground: 222 45% 15%;
+    --muted-foreground: 222 25% 30%;
+    --accent: 43 86% 55%;
+    --accent-foreground: 222 47% 11%;
+    --border: 220 16% 76%;
+    --primary: 222 45% 19%;
+    --primary-foreground: 0 0% 100%;
+    color: hsl(var(--foreground));
+  }
+
+  /* Dark: the sign-up form pane (components/auth/AuthShell.tsx) takes the
+     sidebar's pale blue-gray and navy ink above, so the window reads as part
+     of the app. The brand pane beside it keeps the gold. Chosen 2026-10-21. */
+  [data-theme="classic"].dark [data-auth-pane="form"] {
+    --card: 220 22% 87%;
+    --background: 220 30% 95%;
+    --foreground: 222 45% 15%;
+    --muted-foreground: 222 25% 30%;
+    --border: 220 16% 76%;
+    --input: 220 16% 72%;
+    --primary: 222 45% 19%;
+    --primary-foreground: 0 0% 100%;
+    background: hsl(var(--card));
+    color: hsl(var(--foreground));
+  }
+
+  /* ── SWISS — red / black / white, no radius, Inter ─────────────────────── */
+  [data-theme="swiss"] {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --primary: 0 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 90%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 35%;
+    --accent: 0 0% 90%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 70% 33%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 100% 45%;
+    --warning-foreground: 0 0% 100%;
+    --border: 0 0% 80%;
+    --input: 0 0% 80%;
+    --ring: 0 0% 0%;
+    --radius: 0rem;
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+  [data-theme="swiss"].dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 100%;
+    --primary: 0 100% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 18%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 60% 50%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 95% 55%;
+    --warning-foreground: 0 0% 10%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 0 0% 100%;
+  }
+  [data-theme="swiss"].gray {
+    --background: 0 0% 12%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 92%;
+    --primary: 0 80% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 92%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 0 0% 25%;
+    --accent-foreground: 0 0% 92%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 50% 52%;
+    --success-foreground: 0 0% 10%;
+    --warning: 38 80% 52%;
+    --warning-foreground: 0 0% 10%;
+    --border: 0 0% 28%;
+    --input: 0 0% 28%;
+    --ring: 0 0% 80%;
+  }
+
+  /* ── EDITORIAL — warm paper, maroon, serif ─────────────────────────────── */
+  [data-theme="editorial"] {
+    --background: 40 33% 97%;
+    --foreground: 0 0% 10%;
+    --card: 40 40% 99%;
+    --card-foreground: 0 0% 10%;
+    --primary: 93 55% 28%;
+    --primary-foreground: 40 33% 97%;
+    --secondary: 40 23% 92%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 40 20% 92%;
+    --muted-foreground: 0 0% 35%;
+    --accent: 40 25% 90%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 70% 42%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 45% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 80% 42%;
+    --warning-foreground: 0 0% 100%;
+    --border: 40 12% 80%;
+    --input: 40 12% 80%;
+    --ring: 93 55% 28%;
+    --radius: 0.25rem;
+    --font-sans: "Source Serif 4 Variable", "Source Serif 4", ui-serif, Georgia, serif;
+    --font-display: "Playfair Display", ui-serif, Georgia, serif;
+  }
+  [data-theme="editorial"].dark {
+    --background: 30 10% 10%;
+    --foreground: 40 30% 90%;
+    --card: 30 10% 13%;
+    --card-foreground: 40 30% 90%;
+    --primary: 93 50% 52%;
+    /* Dark, not white: a mid green this bright carries white at 2.2:1. */
+    --primary-foreground: 140 40% 8%;
+    --secondary: 30 8% 20%;
+    --secondary-foreground: 40 30% 90%;
+    --muted: 30 8% 20%;
+    --muted-foreground: 40 15% 65%;
+    --accent: 30 8% 24%;
+    --accent-foreground: 40 30% 90%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 45% 50%;
+    --success-foreground: 0 0% 10%;
+    --warning: 38 85% 55%;
+    --warning-foreground: 0 0% 10%;
+    --border: 30 8% 26%;
+    --input: 30 8% 26%;
+    --ring: 93 50% 52%;
+  }
+  [data-theme="editorial"].gray {
+    --background: 0 0% 12%;
+    --foreground: 40 15% 88%;
+    --card: 0 0% 15%;
+    --card-foreground: 40 15% 88%;
+    --primary: 93 45% 50%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 40 15% 88%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 0 0% 25%;
+    --accent-foreground: 40 15% 88%;
+    --destructive: 0 65% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 45% 52%;
+    --success-foreground: 0 0% 10%;
+    --warning: 38 80% 52%;
+    --warning-foreground: 0 0% 10%;
+    --border: 0 0% 28%;
+    --input: 0 0% 28%;
+    --ring: 0 0% 75%;
+  }
+
+  /* ── CIVIC — institutional navy + gold ─────────────────────────────────── */
+  [data-theme="civic"] {
+    --background: 222 23% 91%;
+    --foreground: 222 45% 15%;
+    --card: 220 24% 97%;
+    --card-foreground: 222 45% 15%;
+    --primary: 222 45% 19%;
+    --primary-foreground: 220 24% 96%;
+    --secondary: 220 21% 84%;
+    --secondary-foreground: 222 45% 19%;
+    --muted: 220 18% 86%;
+    --muted-foreground: 222 20% 38%;
+    --accent: 43 84% 49%;
+    --accent-foreground: 222 45% 15%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 55% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 43 84% 42%;
+    --warning-foreground: 0 0% 100%;
+    --border: 220 16% 80%;
+    --input: 220 16% 80%;
+    --ring: 43 84% 49%;
+    --radius: 0.625rem;
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Playfair Display", ui-serif, Georgia, serif;
+  }
+  [data-theme="civic"].dark {
+    --background: 222 47% 11%;
+    --foreground: 220 30% 92%;
+    --card: 222 42% 15%;
+    --card-foreground: 220 30% 92%;
+    --primary: 43 86% 55%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 222 33% 22%;
+    --secondary-foreground: 220 30% 92%;
+    --muted: 222 33% 20%;
+    --muted-foreground: 220 18% 65%;
+    --accent: 43 86% 55%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 50% 48%;
+    --success-foreground: 0 0% 10%;
+    --warning: 43 86% 55%;
+    --warning-foreground: 222 47% 11%;
+    --border: 222 30% 26%;
+    --input: 222 30% 26%;
+    --ring: 43 86% 55%;
+  }
+  [data-theme="civic"].gray {
+    --background: 0 0% 12%;
+    --foreground: 0 0% 90%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 90%;
+    --primary: 43 80% 55%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 43 60% 45%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 65% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 45% 50%;
+    --success-foreground: 0 0% 10%;
+    --warning: 43 80% 52%;
+    --warning-foreground: 0 0% 10%;
+    --border: 0 0% 28%;
+    --input: 0 0% 28%;
+    --ring: 43 80% 55%;
+  }
+
+  /* ── VERDANT GROVE — soft green nature ─────────────────────────────────── */
+  [data-theme="verdant-grove"] {
+    --background: 120 22% 95%;
+    --foreground: 150 30% 15%;
+    --card: 110 30% 98%;
+    --card-foreground: 150 30% 15%;
+    --primary: 150 30% 27%;
+    --primary-foreground: 110 22% 96%;
+    --secondary: 120 18% 88%;
+    --secondary-foreground: 150 30% 20%;
+    --muted: 120 15% 89%;
+    --muted-foreground: 150 12% 38%;
+    --accent: 39 70% 80%;
+    --accent-foreground: 150 30% 18%;
+    --destructive: 0 60% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 150 45% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 39 80% 42%;
+    --warning-foreground: 0 0% 100%;
+    --border: 120 15% 82%;
+    --input: 120 15% 82%;
+    --ring: 150 27% 43%;
+    --radius: 1.125rem;
+    --font-sans: "Karla", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
+  }
+  [data-theme="verdant-grove"].dark {
+    --background: 155 25% 9%;
+    --foreground: 110 20% 90%;
+    --card: 155 22% 12%;
+    --card-foreground: 110 20% 90%;
+    --primary: 150 35% 55%;
+    --primary-foreground: 155 25% 9%;
+    --secondary: 155 18% 20%;
+    --secondary-foreground: 110 20% 90%;
+    --muted: 155 18% 18%;
+    --muted-foreground: 120 12% 62%;
+    --accent: 39 50% 60%;
+    --accent-foreground: 155 25% 9%;
+    --destructive: 0 60% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 150 45% 52%;
+    --success-foreground: 0 0% 10%;
+    --warning: 39 70% 55%;
+    --warning-foreground: 0 0% 10%;
+    --border: 155 15% 24%;
+    --input: 155 15% 24%;
+    --ring: 150 35% 55%;
+  }
+  [data-theme="verdant-grove"].gray {
+    --background: 0 0% 12%;
+    --foreground: 0 0% 90%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 90%;
+    --primary: 150 30% 50%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 39 40% 55%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 65% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 150 40% 50%;
+    --success-foreground: 0 0% 10%;
+    --warning: 39 70% 52%;
+    --warning-foreground: 0 0% 10%;
+    --border: 0 0% 28%;
+    --input: 0 0% 28%;
+    --ring: 150 30% 50%;
+  }
+
+  /* ── TERRAZZO ATELIER — warm studio clay/sun/sage ──────────────────────── */
+  [data-theme="terrazzo"] {
+    --background: 37 100% 96%;
+    --foreground: 20 20% 18%;
+    --card: 39 60% 99%;
+    --card-foreground: 20 20% 18%;
+    --primary: 14 54% 55%;
+    --primary-foreground: 37 100% 97%;
+    --secondary: 39 45% 90%;
+    --secondary-foreground: 20 20% 20%;
+    --muted: 39 35% 90%;
+    --muted-foreground: 20 12% 40%;
+    --accent: 39 84% 68%;
+    --accent-foreground: 20 25% 20%;
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 30% 38%;
+    --success-foreground: 0 0% 100%;
+    --warning: 39 84% 48%;
+    --warning-foreground: 20 25% 15%;
+    --border: 35 25% 84%;
+    --input: 35 25% 84%;
+    --ring: 14 54% 55%;
+    --radius: 0.875rem;
+    --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Fraunces Variable", "Fraunces", ui-serif, Georgia, serif;
+  }
+  [data-theme="terrazzo"].dark {
+    --background: 20 15% 11%;
+    --foreground: 37 40% 92%;
+    --card: 20 14% 14%;
+    --card-foreground: 37 40% 92%;
+    --primary: 14 60% 60%;
+    --primary-foreground: 20 15% 11%;
+    --secondary: 20 12% 22%;
+    --secondary-foreground: 37 40% 92%;
+    --muted: 20 12% 20%;
+    --muted-foreground: 37 15% 65%;
+    --accent: 39 70% 62%;
+    --accent-foreground: 20 20% 12%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 35% 50%;
+    --success-foreground: 0 0% 10%;
+    --warning: 39 80% 58%;
+    --warning-foreground: 20 25% 12%;
+    --border: 20 12% 26%;
+    --input: 20 12% 26%;
+    --ring: 14 60% 60%;
+  }
+  [data-theme="terrazzo"].gray {
+    --background: 0 0% 12%;
+    --foreground: 0 0% 90%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 90%;
+    --primary: 14 55% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 39 60% 58%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 65% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 35% 50%;
+    --success-foreground: 0 0% 10%;
+    --warning: 39 70% 52%;
+    --warning-foreground: 0 0% 10%;
+    --border: 0 0% 28%;
+    --input: 0 0% 28%;
+    --ring: 14 55% 58%;
+  }
+
+  /* ── KINETIC FLUX — cool surfaces, electric accents ────────────────────── */
+  [data-theme="kinetic-flux"] {
+    --background: 222 43% 97%;
+    --foreground: 230 30% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 230 30% 12%;
+    --primary: 203 90% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 30% 92%;
+    --secondary-foreground: 230 30% 15%;
+    --muted: 222 25% 92%;
+    --muted-foreground: 230 12% 42%;
+    --accent: 105 75% 50%;
+    --accent-foreground: 230 40% 12%;
+    --destructive: 350 90% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 65% 38%;
+    --success-foreground: 0 0% 100%;
+    --warning: 27 95% 48%;
+    --warning-foreground: 0 0% 100%;
+    --border: 222 20% 86%;
+    --input: 222 20% 86%;
+    --ring: 203 90% 48%;
+    --radius: 0.75rem;
+    --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
+  }
+  [data-theme="kinetic-flux"].dark {
+    --background: 230 35% 8%;
+    --foreground: 220 30% 95%;
+    --card: 230 30% 12%;
+    --card-foreground: 220 30% 95%;
+    --primary: 203 100% 60%;
+    --primary-foreground: 230 35% 8%;
+    --secondary: 230 25% 20%;
+    --secondary-foreground: 220 30% 95%;
+    --muted: 230 25% 18%;
+    --muted-foreground: 220 15% 65%;
+    --accent: 105 90% 60%;
+    --accent-foreground: 230 40% 10%;
+    --destructive: 350 95% 62%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 65% 52%;
+    --success-foreground: 0 0% 10%;
+    --warning: 27 95% 58%;
+    --warning-foreground: 0 0% 10%;
+    --border: 230 22% 24%;
+    --input: 230 22% 24%;
+    --ring: 203 100% 60%;
+  }
+  [data-theme="kinetic-flux"].gray {
+    --background: 0 0% 11%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 14%;
+    --card-foreground: 0 0% 92%;
+    --primary: 203 90% 58%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 92%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 105 70% 55%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 350 80% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 55% 50%;
+    --success-foreground: 0 0% 10%;
+    --warning: 27 85% 55%;
+    --warning-foreground: 0 0% 10%;
+    --border: 0 0% 27%;
+    --input: 0 0% 27%;
+    --ring: 203 90% 58%;
+  }
+
+  /* ── ATLAS CONSOLE — dense ops console, amber/cyan ─────────────────────── */
+  [data-theme="atlas-console"] {
+    --background: 210 20% 96%;
+    --foreground: 222 30% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 30% 15%;
+    --primary: 28 90% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 18% 90%;
+    --secondary-foreground: 222 30% 18%;
+    --muted: 210 16% 90%;
+    --muted-foreground: 222 12% 40%;
+    --accent: 187 70% 40%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 80% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 55% 35%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 42%;
+    --warning-foreground: 0 0% 100%;
+    --border: 210 16% 82%;
+    --input: 210 16% 82%;
+    --ring: 38 92% 45%;
+    --radius: 0.25rem;
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+  [data-theme="atlas-console"].dark {
+    --background: 222 47% 8%;
+    --foreground: 210 30% 90%;
+    --card: 222 40% 12%;
+    --card-foreground: 210 30% 90%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 222 47% 10%;
+    --secondary: 222 30% 18%;
+    --secondary-foreground: 210 30% 90%;
+    --muted: 222 30% 16%;
+    --muted-foreground: 210 14% 60%;
+    --accent: 187 85% 45%;
+    --accent-foreground: 222 47% 8%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 60% 45%;
+    --success-foreground: 0 0% 10%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 222 47% 8%;
+    --border: 222 25% 22%;
+    --input: 222 25% 22%;
+    --ring: 38 92% 50%;
+  }
+  [data-theme="atlas-console"].gray {
+    --background: 0 0% 10%;
+    --foreground: 0 0% 88%;
+    --card: 0 0% 13%;
+    --card-foreground: 0 0% 88%;
+    --primary: 38 92% 52%;
+    --primary-foreground: 0 0% 8%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 88%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 58%;
+    --accent: 187 60% 45%;
+    --accent-foreground: 0 0% 8%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 55% 48%;
+    --success-foreground: 0 0% 8%;
+    --warning: 38 90% 54%;
+    --warning-foreground: 0 0% 8%;
+    --border: 0 0% 24%;
+    --input: 0 0% 24%;
+    --ring: 38 92% 52%;
+  }
+
+  /* ── PIXEL ART — chunky NES palette, pixel fonts, no radius ────────────── */
+  [data-theme="pixel-art"] {
+    --background: 0 0% 90%;
+    --foreground: 0 0% 8%;
+    --card: 0 0% 96%;
+    --card-foreground: 0 0% 8%;
+    --primary: 202 100% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 82%;
+    --secondary-foreground: 0 0% 8%;
+    --muted: 0 0% 84%;
+    --muted-foreground: 0 0% 30%;
+    --accent: 45 100% 49%;
+    --accent-foreground: 0 0% 8%;
+    --destructive: 348 100% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 150 100% 28%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 100% 45%;
+    --warning-foreground: 0 0% 8%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 202 100% 38%;
+    --radius: 0rem;
+    --font-sans: "VT323", ui-monospace, monospace;
+    --font-display: "Press Start 2P", "VT323", ui-monospace, monospace;
+  }
+  [data-theme="pixel-art"].dark {
+    --background: 0 0% 6%;
+    --foreground: 0 0% 99%;
+    --card: 0 0% 11%;
+    --card-foreground: 0 0% 99%;
+    --primary: 202 100% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 99%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 45 100% 50%;
+    --accent-foreground: 0 0% 6%;
+    --destructive: 348 100% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 150 90% 40%;
+    --success-foreground: 0 0% 6%;
+    --warning: 38 100% 50%;
+    --warning-foreground: 0 0% 6%;
+    --border: 0 0% 30%;
+    --input: 0 0% 30%;
+    --ring: 45 100% 50%;
+  }
+  [data-theme="pixel-art"].gray {
+    --background: 0 0% 12%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 16%;
+    --card-foreground: 0 0% 92%;
+    --primary: 202 80% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 92%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 45 90% 50%;
+    --accent-foreground: 0 0% 8%;
+    --destructive: 348 80% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 150 70% 45%;
+    --success-foreground: 0 0% 8%;
+    --warning: 38 90% 52%;
+    --warning-foreground: 0 0% 8%;
+    --border: 0 0% 28%;
+    --input: 0 0% 28%;
+    --ring: 45 90% 50%;
+  }
+
+  /* ── PLAIN — black & white, serif (Times) ──────────────────────────────── */
+  [data-theme="plain"] {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 35%;
+    --accent: 0 0% 90%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 60% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 140 50% 30%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 80% 40%;
+    --warning-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 0%;
+    --radius: 0rem;
+    --font-sans: "Times New Roman", Times, serif;
+    --font-display: "Times New Roman", Times, serif;
+  }
+  [data-theme="plain"].dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 18%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 140 50% 55%;
+    --success-foreground: 0 0% 10%;
+    --warning: 38 90% 55%;
+    --warning-foreground: 0 0% 10%;
+    --border: 0 0% 35%;
+    --input: 0 0% 35%;
+    --ring: 0 0% 100%;
+  }
+  [data-theme="plain"].gray {
+    --background: 0 0% 12%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 92%;
+    --primary: 0 0% 85%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 92%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 0 0% 25%;
+    --accent-foreground: 0 0% 92%;
+    --destructive: 0 65% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 140 45% 52%;
+    --success-foreground: 0 0% 10%;
+    --warning: 38 85% 52%;
+    --warning-foreground: 0 0% 10%;
+    --border: 0 0% 30%;
+    --input: 0 0% 30%;
+    --ring: 0 0% 80%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  /* Opt-in display type (brand wordmark, hero headings). Kept off data/tables
+     so themes with large display fonts (e.g. Pixel Art) never break layout. */
+  .font-display {
+    font-family: var(--font-display);
+  }
+  /* Press Start 2P has a large em-box; shrink the wordmark so it stays balanced
+     next to the icon and relax the tight tracking that crowds blocky glyphs. */
+  [data-theme="pixel-art"] .brand-wordmark {
+    font-size: 0.7rem;
+    line-height: 1.4;
+    letter-spacing: 0;
+  }
+}
+
+/* Recharts — axis tick text and legend text use theme colors */
+.recharts-cartesian-axis-tick-value {
+  fill: hsl(var(--muted-foreground));
+}
+.recharts-legend-item-text {
+  color: hsl(var(--foreground)) !important;
+}
+.recharts-default-tooltip {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 8px !important;
+}
+.recharts-tooltip-label {
+  color: hsl(var(--foreground)) !important;
+  font-size: 12px !important;
+}
+.recharts-tooltip-item {
+  color: hsl(var(--card-foreground)) !important;
+  font-size: 12px !important;
+}
+
+/* ============================================================================
+   THEME ICON TREATMENTS (Tier 1)
+   ----------------------------------------------------------------------------
+   lucide-react renders every icon as <svg class="lucide …"> with stroke-width /
+   stroke-linecap / stroke-linejoin as presentation attributes. Author CSS always
+   wins over presentation attributes, and these three are inherited SVG props, so
+   setting them on the svg cascades to all icon paths — no component changes.
+
+   Geometry stays identical across themes (recognizability preserved); only the
+   weight/caps/joins change to give each theme its own icon personality. Stroke
+   is mode-independent, so these are scoped by data-theme only.
+   ========================================================================== */
+[data-theme="swiss"] .lucide {
+  stroke-width: 1.25;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+}
+[data-theme="atlas-console"] .lucide {
+  stroke-width: 1.5;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+}
+[data-theme="plain"] .lucide {
+  stroke-width: 1;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+[data-theme="editorial"] .lucide {
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+[data-theme="verdant-grove"] .lucide {
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+[data-theme="terrazzo"] .lucide {
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+[data-theme="kinetic-flux"] .lucide {
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+[data-theme="civic"] .lucide {
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+[data-theme="pixel-art"] .lucide {
+  stroke-width: 2;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  shape-rendering: crispEdges;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full;
+}
+/* Firefox has none of the rules above and drew its own light scrollbar on
+   every theme: a white strip under a table in dark mode. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+}
+
+
+/* Blur mode: amounts, names and account numbers are
+   blurred, labels and chart shapes are not, and hovering an item shows it.
+   Money and account numbers are marked [data-pv] by PrivacyBlur.tsx; names
+   carry [data-private] where they are drawn. */
+.privacy-blur [data-pv],
+.privacy-blur [data-private],
+.privacy-blur .recharts-yAxis .recharts-cartesian-axis-tick-value {
+  filter: blur(5px);
+  transition: filter 0.15s ease;
+}
+.privacy-blur [data-pv]:hover,
+.privacy-blur [data-private]:hover,
+.privacy-blur [data-pv]:focus-visible,
+.privacy-blur [data-private]:focus-visible {
+  filter: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .privacy-blur [data-pv],
+  .privacy-blur [data-private] { transition: none; }
+}
+
+/* The sign-in and password pages' backdrop (components/auth/AuthShell.tsx),
+   the same gradient as the marketing hero (marketing/src/pages/index.astro
+   `.hero-bg`): lighter at the left and the top, deeper toward the right and
+   the bottom. The page and brand colours come from the theme; the second
+   colour matches the marketing site's accent in each mode. */
+.auth-hero-bg {
+  --hero-accent: hsl(var(--primary));
+  background:
+    linear-gradient(180deg, transparent 0%, color-mix(in srgb, hsl(var(--primary)) 18%, transparent) 100%),
+    linear-gradient(90deg, hsl(var(--background)) 0%, color-mix(in srgb, var(--hero-accent) 24%, hsl(var(--background))) 100%);
+}
+[data-theme="classic"]:not(.dark):not(.gray) .auth-hero-bg { --hero-accent: #5ec46a; }
+[data-theme="classic"].gray .auth-hero-bg { --hero-accent: hsl(39 40% 55%); }
+
+/* The slow ripple over `.auth-hero-bg` (RippleBackdrop in AuthShell.tsx):
+   three wave layers, each twice the page width, sliding at different speeds
+   so they drift through one another. */
+.auth-ripple {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.auth-ripple svg {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 200%;
+  height: 55%;
+  animation: auth-wave 40s linear infinite;
+}
+.auth-ripple .wave-a path { fill: color-mix(in srgb, hsl(var(--primary)) 10%, transparent); }
+.auth-ripple .wave-b {
+  height: 48%;
+  animation-duration: 28s;
+  animation-direction: reverse;
+}
+.auth-ripple .wave-b path { fill: color-mix(in srgb, var(--hero-accent) 14%, transparent); }
+.auth-ripple .wave-c {
+  height: 40%;
+  animation-duration: 55s;
+}
+.auth-ripple .wave-c path { fill: color-mix(in srgb, hsl(var(--primary)) 12%, transparent); }
+@keyframes auth-wave {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-ripple svg { animation: none; }
+}

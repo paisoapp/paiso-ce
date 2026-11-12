@@ -1,0 +1,13 @@
+.git
+**/__pycache__
+**/*.pyc
+**/node_modules
+frontend/dist
+frontend/tsconfig.tsbuildinfo
+backend/.venv
+backend/tests
+data
+reports
+*.db
+*.db-*
+.env

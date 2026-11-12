@@ -1,0 +1,48 @@
+name: Bug report
+description: Something in Paiso does not work as it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting it. For a security problem, do not open an issue: see SECURITY.md.
+        Leave out your own financial data; describe it instead, or use made-up numbers.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Settings, About shows it.
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: How you run Paiso
+      description: For example, Docker on Ubuntu 24.04 behind Caddy, or Docker Desktop on macOS.
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: The output of `docker logs paiso-ce` around the time it happened, if any.
+      render: text

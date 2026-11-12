@@ -1,0 +1,124 @@
+# The required checks on every pull request and every push to main:
+# backend, frontend and container. All run on GitHub-hosted runners.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.lock
+      - run: |
+          pip install --require-hashes -r requirements.lock
+          pip install ruff vulture
+      # Unused imports and variables. F811 is left out: pytest fixtures are
+      # imported and then redefined as parameters.
+      - run: ruff check app tests --select F401,F841
+      - run: vulture app --min-confidence 61
+      - run: python -m pytest tests/unit tests/aggregator -n auto -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx tsc -p tsconfig.json --noEmit --noUnusedLocals
+      - run: npx --yes knip@5 --no-progress
+      # Type-checks, then check-copy, check-charts, the Vite build and the
+      # third-party license list.
+      - run: npm run build
+
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.lock
+      - run: pip install --require-hashes -r backend/requirements.lock
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: paiso:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke suite
+        run: IMAGE=paiso:ci scripts/smoke.sh
+      - name: Trivy
+        # Pinned by commit: a version tag of this action has been moved before.
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: paiso:ci
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          trivyignores: .trivyignore
+          exit-code: "1"
+
+  # Data written by the latest release survives this image. Runs when a pull
+  # request or push changes the migrations; release.yml runs it on every tag.
+  upgrade:
+    runs-on: ubuntu-latest
+    needs: container
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Did the migrations change?
+        id: changed
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if git diff --quiet "$base" HEAD -- backend/alembic/ 2>/dev/null; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Is there a release to upgrade from?
+        id: previous
+        if: steps.changed.outputs.run == 'true'
+        run: |
+          if docker pull ghcr.io/paisoapp/paiso:latest >/dev/null 2>&1; then
+            echo "image=ghcr.io/paisoapp/paiso:latest" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: docker/setup-buildx-action@v4
+        if: steps.previous.outputs.image != ''
+      - uses: docker/build-push-action@v7
+        if: steps.previous.outputs.image != ''
+        with:
+          context: .
+          load: true
+          tags: paiso:ci
+          cache-from: type=gha
+      - name: Upgrade test
+        if: steps.previous.outputs.image != ''
+        run: OLD_IMAGE=${{ steps.previous.outputs.image }} NEW_IMAGE=paiso:ci scripts/upgrade-test.sh

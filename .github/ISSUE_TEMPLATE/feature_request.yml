@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest an improvement to something Paiso already does.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Improvements to features Paiso already has are welcome. A new feature is agreed here
+        before anyone writes code for it (CONTRIBUTING.md, "New features").
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you are trying to do, and what gets in the way.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: I have read "New features" in CONTRIBUTING.md.
+          required: true

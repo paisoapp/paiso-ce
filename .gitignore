@@ -1,0 +1,45 @@
+# Environment. Every .env variant holds live keys (.env.backup did, and was
+# one `git add -A` away from being committed); only the example is source.
+.env
+.env.*
+!.env.example
+
+# Data volume (contains DB, keys, backups)
+data/
+# ...but not the marketing site's own source folder of that name: its FAQ,
+# glossary and fallback plans are code, and the site cannot build without them.
+!marketing/src/data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Stray database files
+backend/*.db
+backend/test_*.db
+
+# Test run artifacts (JUnit XML)
+reports/

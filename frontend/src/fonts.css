@@ -1,0 +1,54 @@
+/* Theme fonts, served from Paiso's own origin.
+
+   These used to come from fonts.googleapis.com, which sent every visitor's
+   address to Google and stood in the way of a strict Content-Security-Policy.
+
+   One import per weight a theme uses. Each file declares every script the
+   family covers with a unicode-range, so the browser fetches only the files
+   the page needs. Themes pick a family through the --font-* variables in
+   index.css. Add a weight here before using it there. */
+
+
+@import "@fontsource/cormorant-garamond/500.css";
+@import "@fontsource/cormorant-garamond/600.css";
+@import "@fontsource/cormorant-garamond/700.css";
+
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/inter/800.css";
+
+@import "@fontsource/karla/400.css";
+@import "@fontsource/karla/500.css";
+@import "@fontsource/karla/600.css";
+@import "@fontsource/karla/700.css";
+
+@import "@fontsource/manrope/400.css";
+@import "@fontsource/manrope/500.css";
+@import "@fontsource/manrope/600.css";
+@import "@fontsource/manrope/700.css";
+@import "@fontsource/manrope/800.css";
+
+@import "@fontsource/playfair-display/500.css";
+@import "@fontsource/playfair-display/600.css";
+@import "@fontsource/playfair-display/700.css";
+
+@import "@fontsource/press-start-2p/400.css";
+
+@import "@fontsource/syne/500.css";
+@import "@fontsource/syne/600.css";
+@import "@fontsource/syne/700.css";
+@import "@fontsource/syne/800.css";
+
+@import "@fontsource/vt323/400.css";
+
+@import "@fontsource/work-sans/400.css";
+@import "@fontsource/work-sans/500.css";
+@import "@fontsource/work-sans/600.css";
+@import "@fontsource/work-sans/700.css";
+
+/* Variable, with the optical-size axis the themes rely on. These two declare
+   the family as "Fraunces Variable" and "Source Serif 4 Variable". */
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/source-serif-4/opsz.css";
