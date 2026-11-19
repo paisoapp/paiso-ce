@@ -9,7 +9,7 @@
 # Base images are pinned by digest, so the same commit builds on the same
 # base; Dependabot's Docker updates move the digests. Node 24 is the current
 # LTS line (Node 20 reached end of life on 2026-04-30).
-FROM node:24-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85 AS web
+FROM node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5 AS web
 WORKDIR /web
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --ignore-scripts
@@ -22,7 +22,7 @@ ENV VITE_BASE_PATH=/ \
 RUN npm run build:docker
 
 
-FROM python:3.12-slim@sha256:4840d514c583a4d3d8cad3940e68dee6f0f6f3635c12fcd0a3d74c21a5b93a54
+FROM python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
