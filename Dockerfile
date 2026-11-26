@@ -9,7 +9,7 @@
 # Base images are pinned by digest, so the same commit builds on the same
 # base; Dependabot's Docker updates move the digests. Node 24 is the current
 # LTS line (Node 20 reached end of life on 2026-04-30).
-FROM node:24-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85 AS web
+FROM node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5 AS web
 WORKDIR /web
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --ignore-scripts
